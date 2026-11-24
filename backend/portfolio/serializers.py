@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Profile, Project, Skill, SocialLink
+from .models import Profile, Project, Skill, SocialLink, GalleryImage
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -74,5 +74,19 @@ class SocialLinkSerializer(serializers.ModelSerializer):
             "label",
             "url",
             "icon_image",
+            "order",
+        ]
+
+
+class GalleryImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GalleryImage
+        fields = [
+            "id",
+            "title",
+            "caption",
+            "tag",
+            "image",
+            "accent_color",
             "order",
         ]

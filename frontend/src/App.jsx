@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { fetchPortfolioData } from "./api/portfolioApi";
 import Preloader from "./components/Preloader";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
+import AboutProfile from "./components/AboutProfile";
 import ProjectCarousel3D from "./components/ProjectCarousel3D";
 import SkillsSection from "./components/SkillsSection";
 import Footer from "./components/Footer";
@@ -30,6 +32,13 @@ export default function App() {
   const [isNotFound, setIsNotFound] = useState(
     () => window.location.pathname !== "/"
   );
+
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 140,
+    damping: 26,
+    restDelta: 0.001,
+  });
 
   useEffect(() => {
     const loadData = async () => {
@@ -82,12 +91,19 @@ export default function App() {
 
       {loadingDone && (
         <>
+          {/* Top Scroll Progress Bar */}
+          <motion.div
+            style={{ scaleX }}
+            className="fixed top-0 left-0 right-0 z-50 h-[2.5px] origin-left bg-gradient-to-r from-[#FF1E00] via-[#F5C451] to-white"
+          />
+
           <Navbar
             brandName={data.profile?.brand_name || "JAS"}
             resumeUrl={data.profile?.resume_url}
           />
           <main>
             <Hero profile={data.profile} socials={data.socials} />
+            <AboutProfile profile={data.profile} />
             <ProjectCarousel3D projects={data.projects} />
             <SkillsSection skills={data.skills} />
           </main>

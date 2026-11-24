@@ -139,3 +139,37 @@ class SocialLink(models.Model):
 
     def __str__(self):
         return f"{self.label} ({self.platform})"
+
+
+class GalleryImage(models.Model):
+    title = models.CharField(max_length=120)
+    caption = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Short creative note, location, or camera/design context.",
+    )
+    tag = models.CharField(
+        max_length=50,
+        default="VISUAL",
+        help_text="Short badge tag (e.g., DESIGN, STUDIO, LIFE, UI/UX).",
+    )
+    image = models.ImageField(
+        upload_to="gallery/",
+        help_text="Upload a photo, replace it, or delete the entry in Admin.",
+    )
+    accent_color = models.CharField(
+        max_length=20,
+        default="#F5C451",
+        help_text="Glow accent color (e.g., #FF1E00 or #F5C451).",
+    )
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["order", "-created_at"]
+        verbose_name = "Gallery Image"
+        verbose_name_plural = "Gallery Images"
+
+    def __str__(self):
+        return self.title

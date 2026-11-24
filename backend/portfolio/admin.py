@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Profile, Project, Skill, SocialLink
+from .models import Profile, Project, Skill, SocialLink, GalleryImage
 
 
 @admin.register(Profile)
@@ -100,6 +100,33 @@ class SocialLinkAdmin(admin.ModelAdmin):
     search_fields = ("label", "url")
 
 
+@admin.register(GalleryImage)
+class GalleryImageAdmin(admin.ModelAdmin):
+    list_display = ("title", "tag", "photo_thumb", "accent_color", "is_active", "order")
+    list_editable = ("tag", "is_active", "order")
+    list_filter = ("tag", "is_active")
+    search_fields = ("title", "caption", "tag")
+    readonly_fields = ("photo_preview", "created_at")
+
+    def photo_thumb(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;border:1px solid #444;" />',
+                obj.image.url,
+            )
+        return "No image"
+    photo_thumb.short_description = "Photo"
+
+    def photo_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="max-height:240px;border-radius:12px;" />',
+                obj.image.url,
+            )
+        return "No image uploaded."
+    photo_preview.short_description = "Full Preview"
+
+
 admin.site.site_header = "JAS Portfolio Admin"
 admin.site.site_title = "JAS Admin Portal"
-admin.site.index_title = "Manage Profile, Projects, Skills & Links"
+admin.site.index_title = "Manage Profile, Projects, Skills, Gallery & Links"

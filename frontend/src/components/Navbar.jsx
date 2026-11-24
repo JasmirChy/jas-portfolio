@@ -10,7 +10,6 @@ export default function Navbar({ brandName = "JAS", resumeUrl }) {
       className="fixed top-4 left-0 right-0 z-40 flex justify-center px-4"
     >
       <nav className="flex w-full max-w-5xl items-center justify-between rounded-full border border-white/12 bg-[#08080A]/75 px-4 py-2.5 backdrop-blur-xl shadow-[0_10px_40px_rgba(0,0,0,0.65)] sm:px-6">
-        {/* Brand Monogram */}
         <a
           href="#top"
           className="font-display text-xl tracking-wider text-white transition-colors hover:text-[#F5C451]"
@@ -19,8 +18,10 @@ export default function Navbar({ brandName = "JAS", resumeUrl }) {
           <span className="text-[#FF1E00]">.</span>
         </a>
 
-        {/* Navigation Links */}
-        <div className="flex items-center gap-4 text-xs font-medium tracking-wide text-white/75 sm:gap-7 sm:text-sm">
+        <div className="flex items-center gap-3.5 text-xs font-medium tracking-wide text-white/75 sm:gap-7 sm:text-sm">
+          <a href="#about" className="transition-colors hover:text-white">
+            About
+          </a>
           <a href="#work" className="transition-colors hover:text-white">
             Work
           </a>
@@ -32,7 +33,6 @@ export default function Navbar({ brandName = "JAS", resumeUrl }) {
           </a>
         </div>
 
-        {/* Resume or Quick Connect CTA */}
         {resumeUrl ? (
           <a
             href={resumeUrl}

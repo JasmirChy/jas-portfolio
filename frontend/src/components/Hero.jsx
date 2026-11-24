@@ -71,9 +71,6 @@ export default function Hero({ profile, socials = [] }) {
   const fullName = profile?.full_name || "Jasmir Chaudhary";
   const headline =
     profile?.hero_headline || "I design and build websites and digital products.";
-  const bio =
-    profile?.bio ||
-    "Full-stack developer crafting bold, interactive web experiences with Python, Django, React, and PostgreSQL.";
   const location = profile?.location || "Dhangadhi, Nepal";
   const status = profile?.availability_status || "Open to new projects.";
 
@@ -103,106 +100,68 @@ export default function Hero({ profile, socials = [] }) {
           </h1>
         </motion.div>
 
-        {/* Main Asymmetric Content Grid */}
-        <div className="mt-8 grid grid-cols-1 items-end gap-10 lg:grid-cols-12">
-          {/* Left Column: Statement, Live Telemetry & Social Pills */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15 }}
-            className="lg:col-span-7"
-          >
-            <p className="font-mono-tech mb-3 text-xs uppercase tracking-[0.22em] text-[#F5C451]">
-              {fullName} — Full-Stack Engineer
-            </p>
+        {/* Statement, Live Telemetry & Social Links */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.15 }}
+          className="mt-8 max-w-3xl"
+        >
+          <p className="font-mono-tech mb-3 text-xs uppercase tracking-[0.22em] text-[#F5C451]">
+            {fullName} — Full-Stack Engineer
+          </p>
 
-            <h2 className="font-syne text-2xl leading-snug font-bold text-white sm:text-4xl sm:leading-tight">
-              {headline}
-            </h2>
+          <h2 className="font-syne text-2xl leading-snug font-bold text-white sm:text-4xl sm:leading-tight">
+            {headline}
+          </h2>
 
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base">
-              {bio}
-            </p>
-
-            {/* Live Time & Availability Status */}
-            <div className="mt-6 space-y-1.5 font-mono-tech text-xs text-white/60">
-              <div className="flex items-center gap-2">
-                <span>{timeString}</span>
-                <span>•</span>
-                <span>{location}</span>
-              </div>
-              <div className="flex items-center gap-2 text-white/85">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
-                </span>
-                <span>{status}</span>
-              </div>
+          {/* Live Time & Availability Status */}
+          <div className="mt-6 space-y-1.5 font-mono-tech text-xs text-white/60">
+            <div className="flex items-center gap-2">
+              <span>{timeString}</span>
+              <span>•</span>
+              <span>{location}</span>
             </div>
+            <div className="flex items-center gap-2 text-white/85">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
+              </span>
+              <span>{status}</span>
+            </div>
+          </div>
 
-            {/* Dynamic Social Links from Django Admin */}
-            <div className="mt-7 flex flex-wrap items-center gap-2.5">
-              {socials.map((item) => (
-                <a
-                  key={item.id}
-                  href={item.url}
-                  target={item.platform === "email" ? "_self" : "_blank"}
-                  rel="noreferrer"
-                  className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-4 py-2 text-xs font-medium text-white backdrop-blur-md transition-all hover:border-[#F5C451] hover:bg-[#F5C451] hover:text-black sm:text-sm"
-                >
-                  {item.icon_image ? (
-                    <img
-                      src={item.icon_image}
-                      alt={item.label}
-                      className="h-4 w-4 rounded-full object-cover"
-                    />
-                  ) : (
-                    <SocialIcon platform={item.platform} />
-                  )}
-                  <span>{item.label}</span>
-                </a>
-              ))}
-
+          {/* Dynamic Social Links from Django Admin */}
+          <div className="mt-7 flex flex-wrap items-center gap-2.5">
+            {socials.map((item) => (
               <a
-                href="#work"
-                className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-black transition-transform hover:scale-105 sm:text-sm"
+                key={item.id}
+                href={item.url}
+                target={item.platform === "email" ? "_self" : "_blank"}
+                rel="noreferrer"
+                className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-4 py-2 text-xs font-medium text-white backdrop-blur-md transition-all hover:border-[#F5C451] hover:bg-[#F5C451] hover:text-black sm:text-sm"
               >
-                Explore Work
-                <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="2.2">
-                  <path d="M7 7l10 10M17 7v10H7" />
-                </svg>
+                {item.icon_image ? (
+                  <img
+                    src={item.icon_image}
+                    alt={item.label}
+                    className="h-4 w-4 rounded-full object-cover"
+                  />
+                ) : (
+                  <SocialIcon platform={item.platform} />
+                )}
+                <span>{item.label}</span>
               </a>
-            </div>
-          </motion.div>
+            ))}
 
-          {/* Right Column: Dynamic Profile Photo Card */}
-          {profile?.avatar && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92, rotate: 2 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="flex justify-start lg:col-span-5 lg:justify-end"
+            <a
+              href="#about"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-black transition-transform hover:scale-105 sm:text-sm"
             >
-              <div className="group relative w-full max-w-[300px] sm:max-w-[340px]">
-                <div className="absolute -inset-1 rounded-[28px] bg-gradient-to-tr from-[#FF1E00] via-[#F5C451] to-transparent opacity-60 blur-lg transition-opacity duration-500 group-hover:opacity-90" />
-
-                <div className="relative overflow-hidden rounded-[26px] border border-white/15 bg-[#111115] p-2 shadow-2xl">
-                  <div className="aspect-[4/5] w-full overflow-hidden rounded-[20px]">
-                    <img
-                      src={profile.avatar}
-                      alt={fullName}
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="mt-2.5 flex items-center justify-between px-2 pb-1 font-mono-tech text-[11px] text-white/60">
-                    <span>{brandName} // PORTRAIT</span>
-                    <span className="text-[#F5C451]">VERIFIED</span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </div>
+              Meet {brandName} ↓
+            </a>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

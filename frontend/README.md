@@ -1,16 +1,27 @@
-# React + Vite
+# JAS — Full-Stack Interactive Developer Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A mobile-first, motion-driven full-stack portfolio built with **Python**, **Django REST Framework**, **PostgreSQL**, **React**, **Tailwind CSS**, and **Framer Motion**.
 
-Currently, two official plugins are available:
+## Key Features
+- **Dynamic Django Admin CMS:** Add, replace, reorder, or remove profile photos, projects with cover images, skill icons, and social links with live image previews.
+- **Shattered-Glass Welcome & 404 Experience:** Interactive CRT parchment opening screen with spiderweb fractures, falling shards, and smooth zoom transition.
+- **Scroll & Cursor-Reactive Profile Stage:** Counter-rotating orbital HUD rings, rotating stamp badge, and 3D gyroscopic tilt synced to scroll and cursor position.
+- **3D Perspective Project Carousel:** Touch-swipeable and keyboard-navigable 3D stage with crosshair reticles, category filters, grid toggle, and detail modal.
+- **Dynamic Skills Matrix & Kinetic Footer:** Filterable tech stack with animated proficiency bars, infinite marquee, and one-click email copy.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
+- **Backend:** Python, Django, Django REST Framework, django-cors-headers, Pillow
+- **Database:** PostgreSQL
+- **Frontend:** React (Vite), Tailwind CSS, Framer Motion, Axios
 
-## React Compiler
+## Local Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 1. Backend (Django + PostgreSQL)
+```bash
+cd backend
+py -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
