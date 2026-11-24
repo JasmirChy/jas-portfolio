@@ -540,7 +540,7 @@ export default function AboutProfile({ profile }) {
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
 
                   <div className="pointer-events-none absolute bottom-2.5 left-3 right-3 flex items-center justify-between font-mono-tech text-[9px] uppercase tracking-wider text-white/85 sm:text-[10px]">
-                    <span className="text-[#38BDF8]">{brandName} .... </span>
+                    <span className="text-[#38BDF8]">{brandName} // ASCII </span>
                     <span className="rounded-full bg-[#10B981] px-2 py-0.5 text-[8px] font-bold text-black sm:text-[9px]">
                       {isZooming ? "ZOOM 2.2X" : "HOVER ZOOM"}
                     </span>
