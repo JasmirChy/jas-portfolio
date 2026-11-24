@@ -98,14 +98,14 @@ function HoloPortraitReactor({ avatarUrl, fullName, brandName, overdrive, onTogg
         transformStyle: "preserve-3d",
       }}
       title="Click to toggle Reactor Overdrive"
-      className="group relative flex h-32 w-32 shrink-0 cursor-pointer items-center justify-center select-none sm:h-44 sm:w-44 lg:h-[360px] lg:w-[360px] xl:h-[395px] xl:w-[395px]"
+      className="group relative flex h-[156px] w-[156px] shrink-0 cursor-pointer items-center justify-center select-none min-[390px]:h-[172px] min-[390px]:w-[172px] sm:h-48 sm:w-48 lg:h-[360px] lg:w-[360px] xl:h-[395px] xl:w-[395px]"
     >
       {/* Multi-Spectrum Ambient Reactor Aura */}
       <div
         aria-hidden="true"
         className={`pointer-events-none absolute inset-4 rounded-full blur-2xl transition-all duration-500 lg:inset-8 lg:blur-3xl ${
           overdrive
-            ? "bg-gradient-to-tr from-[#06B6D4]/45 via-[#F5C451]/35 to-[#FF1E00]/45 scale-110"
+            ? "scale-110 bg-gradient-to-tr from-[#06B6D4]/45 via-[#F5C451]/35 to-[#FF1E00]/45"
             : "bg-gradient-to-tr from-[#FF1E00]/30 via-[#F5C451]/20 to-[#0EA5E9]/25 group-hover:scale-105"
         }`}
       />
@@ -154,7 +154,7 @@ function HoloPortraitReactor({ avatarUrl, fullName, brandName, overdrive, onTogg
           repeat: Infinity,
           ease: "linear",
         }}
-        className="pointer-events-none absolute inset-2.5 rounded-full border-2 border-transparent border-t-[#FF1E00] border-r-[#F5C451] border-b-[#38BDF8]/80 sm:inset-3.5 lg:inset-6 lg:border-[2.5px]"
+        className="pointer-events-none absolute inset-2 rounded-full border-2 border-transparent border-t-[#FF1E00] border-r-[#F5C451] border-b-[#38BDF8]/80 min-[390px]:inset-2.5 sm:inset-3.5 lg:inset-6 lg:border-[2.5px]"
       />
 
       {/* Ring 3: Inner Dashed Gyro Stabilizer Ring */}
@@ -165,12 +165,12 @@ function HoloPortraitReactor({ avatarUrl, fullName, brandName, overdrive, onTogg
           repeat: Infinity,
           ease: "linear",
         }}
-        className="pointer-events-none absolute inset-4 rounded-full border border-dashed border-white/25 sm:inset-5 lg:inset-10"
+        className="pointer-events-none absolute inset-3.5 rounded-full border border-dashed border-white/25 min-[390px]:inset-4 sm:inset-5 lg:inset-10"
       />
 
       {/* Core Portrait Viewport */}
       <div
-        className={`relative h-[94px] w-[94px] overflow-hidden rounded-full border-2 bg-[#0B0B10] transition-all duration-500 sm:h-[132px] sm:w-[132px] lg:h-[268px] lg:w-[268px] xl:h-[296px] xl:w-[296px] ${
+        className={`relative h-[116px] w-[116px] overflow-hidden rounded-full border-2 bg-[#0B0B10] transition-all duration-500 min-[390px]:h-[130px] min-[390px]:w-[130px] sm:h-[146px] sm:w-[146px] lg:h-[268px] lg:w-[268px] xl:h-[296px] xl:w-[296px] ${
           overdrive
             ? "border-[#38BDF8] shadow-[0_0_50px_rgba(56,189,248,0.55)]"
             : "border-white/20 shadow-[0_20px_60px_rgba(0,0,0,0.9)] group-hover:border-[#F5C451]/70"
@@ -183,7 +183,7 @@ function HoloPortraitReactor({ avatarUrl, fullName, brandName, overdrive, onTogg
             className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-108"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FF1E00] via-[#12121A] to-[#08080A] font-display text-3xl text-white lg:text-7xl">
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FF1E00] via-[#12121A] to-[#08080A] font-display text-4xl text-white lg:text-7xl">
             {brandName}
           </div>
         )}
@@ -224,7 +224,7 @@ function HoloPortraitReactor({ avatarUrl, fullName, brandName, overdrive, onTogg
 
       {/* Bottom Interactive Reactor Status Pill (Mobile + Desktop) */}
       <div
-        className={`pointer-events-none absolute -bottom-1.5 flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono-tech text-[8px] tracking-widest shadow-lg backdrop-blur-md transition-colors sm:text-[9px] lg:bottom-2 lg:px-3.5 lg:py-1 lg:text-[10px] ${
+        className={`pointer-events-none absolute -bottom-1.5 flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono-tech text-[8.5px] tracking-widest shadow-lg backdrop-blur-md transition-colors sm:text-[9px] lg:bottom-2 lg:px-3.5 lg:py-1 lg:text-[10px] ${
           overdrive
             ? "border-[#38BDF8]/60 bg-[#07131A]/95 text-[#38BDF8]"
             : "border-[#F5C451]/40 bg-[#08080C]/95 text-[#F5C451]"
@@ -276,7 +276,7 @@ export default function Hero({ profile, socials = [] }) {
   return (
     <section
       id="top"
-      className="relative flex min-h-[100dvh] flex-col justify-center overflow-hidden pt-20 pb-10 sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-24"
+      className="relative flex min-h-[100dvh] flex-col justify-center overflow-hidden pt-20 pb-8 sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-24"
     >
       {/* Crimson-to-Obsidian Top Spotlight */}
       <div
@@ -291,17 +291,17 @@ export default function Hero({ profile, socials = [] }) {
       <div className="film-grain pointer-events-none absolute inset-0 opacity-35" />
 
       <div className="relative z-10 mx-auto w-full max-w-6xl px-5 sm:px-8">
-        <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-12 lg:gap-10">
+        <div className="grid grid-cols-1 items-center gap-5 lg:grid-cols-12 lg:gap-10">
           {/* LEFT / MAIN COLUMN: Giant Wordmark, Headline, Telemetry & Socials */}
           <div className="lg:col-span-7">
-            {/* Top Row: Sculpted Wordmark + Compact Reactor on Mobile/Tablet */}
+            {/* Top Row: Sculpted Wordmark + Balanced Orbital Reactor on Mobile/Tablet */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className="flex items-center justify-between gap-3 select-none lg:block"
             >
-              <h1 className="font-display text-[21vw] leading-[0.84] uppercase tracking-tighter text-white/95 drop-shadow-[0_12px_30px_rgba(0,0,0,0.65)] sm:text-[9.5rem] lg:text-[10.5rem] xl:text-[12rem]">
+              <h1 className="font-display text-[19vw] leading-[0.84] uppercase tracking-tighter text-white/95 drop-shadow-[0_12px_30px_rgba(0,0,0,0.65)] sm:text-[9.5rem] lg:text-[10.5rem] xl:text-[12rem]">
                 {brandName}
                 <span className="text-[#F5C451]">.</span>
               </h1>
@@ -323,9 +323,9 @@ export default function Hero({ profile, socials = [] }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.15 }}
-              className="mt-6 max-w-2xl sm:mt-8"
+              className="mt-5 max-w-2xl sm:mt-8"
             >
-              <p className="font-mono-tech mb-2.5 text-xs uppercase tracking-[0.22em] text-[#F5C451] sm:mb-3">
+              <p className="font-mono-tech mb-2 text-xs uppercase tracking-[0.22em] text-[#F5C451] sm:mb-3">
                 {fullName} — Full-Stack Engineer
               </p>
 
@@ -334,7 +334,7 @@ export default function Hero({ profile, socials = [] }) {
               </h2>
 
               {/* Live Time & Availability Status */}
-              <div className="mt-5 space-y-1.5 font-mono-tech text-xs text-white/60 sm:mt-6">
+              <div className="mt-4 space-y-1.5 font-mono-tech text-xs text-white/60 sm:mt-6">
                 <div className="flex items-center gap-2">
                   <span>{timeString}</span>
                   <span>•</span>
@@ -350,7 +350,7 @@ export default function Hero({ profile, socials = [] }) {
               </div>
 
               {/* Dynamic Social Links from Django Admin */}
-              <div className="mt-6 flex flex-wrap items-center gap-2 sm:mt-7 sm:gap-2.5">
+              <div className="mt-5 flex flex-wrap items-center gap-2 sm:mt-7 sm:gap-2.5">
                 {socials.map((item) => (
                   <a
                     key={item.id}
