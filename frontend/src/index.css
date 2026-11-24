@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+:root {
+  --bg-obsidian: #08080A;
+  --accent-crimson: #FF1E00;
+  --accent-amber: #F5C451;
+  --bg-parchment: #EAE2D0;
+  --accent-vermilion: #D9381E;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--bg-obsidian);
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.font-display {
+  font-family: 'Anton', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.font-syne {
+  font-family: 'Syne', sans-serif;
+}
+
+.font-mono-tech {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Subtle cinematic film grain overlay */
+.film-grain {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
+  background-size: 3px 3px;
+}
+
+/* Hide scrollbars on horizontal touch carousels */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
