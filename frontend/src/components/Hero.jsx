@@ -326,7 +326,7 @@ export default function Hero({ profile, socials = [] }) {
               className="mt-5 max-w-2xl sm:mt-8"
             >
               <p className="font-mono-tech mb-2 text-xs uppercase tracking-[0.22em] text-[#F5C451] sm:mb-3">
-                {fullName} — Full-Stack Engineer
+                {fullName} —Aspiring Full-Stack Developer & UI/UX Designer
               </p>
 
               <h2 className="font-syne text-2xl leading-snug font-bold text-white sm:text-4xl sm:leading-tight">
