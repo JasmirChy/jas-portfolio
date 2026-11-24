@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import ContactForm from "./ContactForm";
 
 export default function Footer({ profile, socials = [], onOpenAdmin }) {
   const [copied, setCopied] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
   const brandName = profile?.brand_name || "JAS";
   const fullName = profile?.full_name || "Jasmir Chaudhary";
@@ -66,14 +68,15 @@ export default function Footer({ profile, socials = [], onOpenAdmin }) {
               </p>
             </div>
 
-            {/* Direct Mail + Copy Email Action Buttons */}
+            {/* Interactive Form Toggle + Copy Email Action Buttons */}
             <div className="flex flex-wrap items-center gap-3">
-              <a
-                href={`mailto:${rawEmail}`}
-                className="inline-flex items-center gap-2 rounded-full bg-[#FF1E00] px-6 py-3 text-xs font-bold text-white shadow-[0_10px_30px_rgba(255,30,0,0.4)] transition-transform hover:scale-105 sm:text-sm"
+              <button
+                type="button"
+                onClick={() => setShowForm((prev) => !prev)}
+                className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#FF1E00] px-6 py-3 text-xs font-bold text-white shadow-[0_10px_30px_rgba(255,30,0,0.4)] transition-transform hover:scale-105 sm:text-sm"
               >
-                Say Hello ↗
-              </a>
+                {showForm ? "Close Form ✕" : "Say Hello ↗"}
+              </button>
 
               <button
                 type="button"
@@ -84,6 +87,23 @@ export default function Footer({ profile, socials = [], onOpenAdmin }) {
               </button>
             </div>
           </div>
+
+          {/* Expandable Interactive Contact Form */}
+          <AnimatePresence>
+            {showForm && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="relative z-10 overflow-hidden"
+              >
+                <div className="mt-8 border-t border-white/10 pt-8">
+                  <ContactForm />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* All Dynamic Social Links Row */}
           {socials.length > 0 && (
