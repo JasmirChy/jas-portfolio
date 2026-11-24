@@ -18,42 +18,53 @@ const GLYPH_TIERS = [
   ["@", "W", "M", "B", "8", "Q"],
 ];
 
+const STAR_PARTICLES = [
+  { top: "8%", left: "14%", size: 2, color: "#38BDF8", delay: 0 },
+  { top: "16%", left: "84%", size: 2.5, color: "#F5C451", delay: 0.6 },
+  { top: "28%", left: "6%", size: 1.5, color: "#34D399", delay: 1.2 },
+  { top: "74%", left: "10%", size: 2, color: "#F5C451", delay: 0.4 },
+  { top: "82%", left: "88%", size: 2.5, color: "#38BDF8", delay: 1.5 },
+  { top: "12%", left: "52%", size: 1.5, color: "#FFFFFF", delay: 0.9 },
+  { top: "88%", left: "44%", size: 2, color: "#34D399", delay: 1.8 },
+  { top: "46%", left: "93%", size: 1.5, color: "#FF1E00", delay: 0.3 },
+];
+
 function getCellColor(theme, lum, wave, isZoomed = false) {
   const alpha = isZoomed
     ? Math.min(1, 0.55 + lum * 0.6)
     : Math.min(1, 0.35 + lum * 0.75);
 
   if (theme === "matrix") {
-    if (lum > 0.78) return `rgba(187, 247, 208, ${alpha})`; // Mint highlight
-    if (lum > 0.52) return `rgba(52, 211, 153, ${alpha})`;  // Emerald green
-    if (lum > 0.28) return `rgba(16, 185, 129, ${alpha})`;  // Matrix green
-    return `rgba(5, 150, 105, ${Math.max(0.32, alpha)})`;   // Deep teal-green
+    if (lum > 0.78) return `rgba(187, 247, 208, ${alpha})`;
+    if (lum > 0.52) return `rgba(52, 211, 153, ${alpha})`;
+    if (lum > 0.28) return `rgba(16, 185, 129, ${alpha})`;
+    return `rgba(5, 150, 105, ${Math.max(0.32, alpha)})`;
   }
 
   if (theme === "prism") {
-    if (lum > 0.8) return `rgba(245, 196, 81, ${alpha})`;   // Gold peak
-    if (lum > 0.56) return `rgba(56, 189, 248, ${alpha})`;  // Electric sky blue
-    if (lum > 0.34) return `rgba(52, 211, 153, ${alpha})`;  // Emerald green
-    return `rgba(99, 102, 241, ${Math.max(0.35, alpha)})`;  // Indigo-blue shadow
+    if (lum > 0.8) return `rgba(245, 196, 81, ${alpha})`;
+    if (lum > 0.56) return `rgba(56, 189, 248, ${alpha})`;
+    if (lum > 0.34) return `rgba(52, 211, 153, ${alpha})`;
+    return `rgba(99, 102, 241, ${Math.max(0.35, alpha)})`;
   }
 
   // Default "cyber": Vibrant Blues, Cyans & Emerald Greens
   if (lum > 0.82) {
     return wave > 0.5
-      ? `rgba(167, 243, 208, ${alpha})` // Luminous mint-emerald
-      : `rgba(186, 230, 253, ${alpha})`; // Ice cyan highlight
+      ? `rgba(167, 243, 208, ${alpha})`
+      : `rgba(186, 230, 253, ${alpha})`;
   }
   if (lum > 0.58) {
     return wave > 0.45
-      ? `rgba(52, 211, 153, ${alpha})`  // Vivid emerald green
-      : `rgba(34, 211, 238, ${alpha})`; // Electric cyan
+      ? `rgba(52, 211, 153, ${alpha})`
+      : `rgba(34, 211, 238, ${alpha})`;
   }
   if (lum > 0.34) {
     return wave > 0.5
-      ? `rgba(16, 185, 129, ${alpha})`  // Rich green
-      : `rgba(59, 130, 246, ${alpha})`; // Cobalt blue
+      ? `rgba(16, 185, 129, ${alpha})`
+      : `rgba(59, 130, 246, ${alpha})`;
   }
-  return `rgba(29, 78, 216, ${Math.max(0.36, alpha)})`;    // Deep royal blue
+  return `rgba(29, 78, 216, ${Math.max(0.36, alpha)})`;
 }
 
 function AsciiMatrixCanvas({
@@ -166,14 +177,12 @@ function AsciiMatrixCanvas({
       ctx.save();
       ctx.scale(dpr, dpr);
 
-      // Deep cyber-obsidian canvas background
       ctx.fillStyle = "#06080F";
       ctx.fillRect(0, 0, rect.width, rect.height);
 
       const { x: px, y: py, active } = pointerRef.current;
 
       if (sampledGrid && sampledGrid.length > 0) {
-        // 1. Base Portrait Pass (with gentle zoom-in when hovered)
         ctx.save();
         if (active) {
           const baseZoom = 1.12;
@@ -195,12 +204,10 @@ function AsciiMatrixCanvas({
           const drawX = cell.col * cellW;
           const drawY = cell.row * cellH;
 
-          // Continuously mutating character inside the cell's brightness tier
           const tier = GLYPH_TIERS[cell.tierIndex];
           const charTick = Math.floor(time * 0.0085 * cell.speed + cell.seed);
           const glyph = tier[charTick % tier.length];
 
-          // Flowing blue-green energy wave across the face
           const wave =
             0.5 + 0.5 * Math.sin(cell.col * 0.14 + cell.row * 0.1 - time * 0.0025);
 
@@ -215,7 +222,7 @@ function AsciiMatrixCanvas({
         }
         ctx.restore();
 
-        // 2. Optical 2.2x ASCII Magnifier Loupe when Cursor/Finger Hovers Over Portrait
+        // Optical 2.2x ASCII Magnifier Loupe when Cursor/Finger Hovers Over Portrait
         if (active && px >= 0 && py >= 0 && px <= rect.width && py <= rect.height) {
           const lensRadius = Math.min(rect.width, rect.height) * 0.27;
           const zoomFactor = 2.2;
@@ -225,7 +232,6 @@ function AsciiMatrixCanvas({
           ctx.arc(px, py, lensRadius, 0, Math.PI * 2);
           ctx.clip();
 
-          // Darken & tint lens interior for ultra-high glyph legibility
           ctx.fillStyle = "#04070D";
           ctx.fillRect(
             px - lensRadius,
@@ -328,7 +334,7 @@ function AsciiMatrixCanvas({
  ╚═══╝ ╚═╝  ╚═╝╚══════╝`}
           </pre>
           <span className="mt-3 font-mono-tech text-[10px] text-[#38BDF8]">
-            {brandName} 
+            {brandName} // ASCII READY
           </span>
         </div>
       )}
@@ -364,54 +370,110 @@ export default function AboutProfile({ profile }) {
     restDelta: 0.001,
   });
 
-  const outerRingRotate = useTransform(smoothScroll, [0, 1], [-45, 195]);
-  const innerRingRotate = useTransform(smoothScroll, [0, 1], [60, -180]);
-  const badgeOrbitRotate = useTransform(smoothScroll, [0, 1], [0, 360]);
   const scrollFrameTilt = useTransform(smoothScroll, [0, 0.5, 1], [-7, 0, 7]);
   const scrollFrameY = useTransform(smoothScroll, [0, 1], [24, -24]);
 
-  // 2. Cursor-tracking 3D tilt & spotlight values
+  // 2. Global Cursor-Tracking 3D Tilt & Spotlight Values (works anywhere on screen)
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const glarePercentX = useMotionValue(50);
   const glarePercentY = useMotionValue(50);
 
-  const springConfig = { stiffness: 220, damping: 22, mass: 0.6 };
+  const springConfig = { stiffness: 160, damping: 20, mass: 0.7 };
   const smoothX = useSpring(mouseX, springConfig);
   const smoothY = useSpring(mouseY, springConfig);
   const smoothGlareX = useSpring(glarePercentX, springConfig);
   const smoothGlareY = useSpring(glarePercentY, springConfig);
 
-  const cursorRotateX = useTransform(smoothY, [-0.5, 0.5], [14, -14]);
-  const cursorRotateY = useTransform(smoothX, [-0.5, 0.5], [-14, 14]);
-  const cursorRotateZ = useTransform(smoothX, [-0.5, 0.5], [-3, 3]);
+  const cursorRotateX = useTransform(smoothY, [-0.6, 0.6], [18, -18]);
+  const cursorRotateY = useTransform(smoothX, [-0.6, 0.6], [-18, 18]);
+  const cursorRotateZ = useTransform(smoothX, [-0.6, 0.6], [-4, 4]);
+  const cursorShiftX = useTransform(smoothX, [-0.6, 0.6], [-12, 12]);
+  const cursorShiftY = useTransform(smoothY, [-0.6, 0.6], [-10, 10]);
 
-  const specularGradient = useMotionTemplate`radial-gradient(circle at ${smoothGlareX}% ${smoothGlareY}%, rgba(52, 211, 153, 0.24) 0%, rgba(56, 189, 248, 0.14) 38%, transparent 68%)`;
+  const specularGradient = useMotionTemplate`radial-gradient(circle at ${smoothGlareX}% ${smoothGlareY}%, rgba(52, 211, 153, 0.28) 0%, rgba(56, 189, 248, 0.16) 40%, transparent 70%)`;
 
-  const updateInteraction = (clientX, clientY) => {
-    if (!frameRef.current) return;
+  useEffect(() => {
+    const clamp = (val, min, max) => Math.min(max, Math.max(min, val));
+
+    const handleGlobalPointerMove = (e) => {
+      if (!frameRef.current) return;
+      const rect = frameRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      const normX = clamp((e.clientX - centerX) / (window.innerWidth * 0.45), -0.6, 0.6);
+      const normY = clamp((e.clientY - centerY) / (window.innerHeight * 0.45), -0.6, 0.6);
+
+      mouseX.set(normX);
+      mouseY.set(normY);
+
+      const relX = clamp((e.clientX - rect.left) / rect.width, -0.3, 1.3);
+      const relY = clamp((e.clientY - rect.top) / rect.height, -0.3, 1.3);
+      glarePercentX.set(relX * 100);
+      glarePercentY.set(relY * 100);
+
+      const isInsideCard =
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom;
+
+      if (isInsideCard) {
+        asciiPointerRef.current = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+          active: true,
+        };
+        setIsZooming(true);
+      } else {
+        asciiPointerRef.current.active = false;
+        setIsZooming(false);
+      }
+    };
+
+    const handleWindowMouseOut = (e) => {
+      if (!e.relatedTarget && !e.toElement) {
+        mouseX.set(0);
+        mouseY.set(0);
+        glarePercentX.set(50);
+        glarePercentY.set(50);
+        asciiPointerRef.current.active = false;
+        setIsZooming(false);
+      }
+    };
+
+    window.addEventListener("pointermove", handleGlobalPointerMove, { passive: true });
+    window.addEventListener("mouseout", handleWindowMouseOut);
+    return () => {
+      window.removeEventListener("pointermove", handleGlobalPointerMove);
+      window.removeEventListener("mouseout", handleWindowMouseOut);
+    };
+  }, [mouseX, mouseY, glarePercentX, glarePercentY]);
+
+  const handleTouchMove = (e) => {
+    if (!frameRef.current || !e.touches[0]) return;
+    const touch = e.touches[0];
     const rect = frameRef.current.getBoundingClientRect();
-    const relX = (clientX - rect.left) / rect.width;
-    const relY = (clientY - rect.top) / rect.height;
+    const relX = (touch.clientX - rect.left) / rect.width;
+    const relY = (touch.clientY - rect.top) / rect.height;
 
-    mouseX.set(relX - 0.5);
-    mouseY.set(relY - 0.5);
+    mouseX.set(Math.min(0.6, Math.max(-0.6, relX - 0.5)));
+    mouseY.set(Math.min(0.6, Math.max(-0.6, relY - 0.5)));
     glarePercentX.set(relX * 100);
     glarePercentY.set(relY * 100);
 
     asciiPointerRef.current = {
-      x: clientX - rect.left,
-      y: clientY - rect.top,
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top,
       active: true,
     };
-    if (!isZooming) setIsZooming(true);
+    setIsZooming(true);
   };
 
-  const resetInteraction = () => {
+  const handleTouchEnd = () => {
     mouseX.set(0);
     mouseY.set(0);
-    glarePercentX.set(50);
-    glarePercentY.set(50);
     asciiPointerRef.current.active = false;
     setIsZooming(false);
   };
@@ -422,34 +484,216 @@ export default function AboutProfile({ profile }) {
       ref={sectionRef}
       className="relative flex min-h-[100dvh] flex-col justify-center overflow-hidden border-t border-white/10 py-14 sm:py-28 md:block"
     >
-      {/* Subtle Ambient Emerald & Cyan Glow */}
+      {/* Multi-Spectrum Cosmic Nebula Backdrop */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-1/4 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#0EA5E9]/[0.12] blur-[120px]"
+        className="pointer-events-none absolute top-1/2 left-1/4 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(14,165,233,0.16)_0%,rgba(16,185,129,0.08)_42%,rgba(255,30,0,0.05)_70%,transparent_100%)] blur-[110px]"
       />
 
       <div className="relative z-10 mx-auto w-full max-w-6xl px-5 sm:px-8">
         <div className="grid grid-cols-1 items-center gap-8 sm:gap-14 lg:grid-cols-12">
-          {/* LEFT COLUMN: Rotational & Cursor-Reactive ASCII Portrait Stage */}
+          {/* LEFT COLUMN: Marvel-Level Celestial Astrolabe & Planetary System */}
           <div className="relative flex items-center justify-center lg:col-span-6">
-            {/* Outer Scroll-Rotating Dashed Orbital Ring */}
+            {/* Ambient Twinkling Starfield Dust */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute h-[310px] w-[310px] sm:h-[520px] sm:w-[520px]"
+            >
+              {STAR_PARTICLES.map((star, idx) => (
+                <motion.span
+                  key={idx}
+                  animate={{
+                    opacity: [0.2, 1, 0.2],
+                    scale: [0.8, 1.35, 0.8],
+                  }}
+                  transition={{
+                    duration: 2.8 + (idx % 3) * 0.7,
+                    delay: star.delay,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  style={{
+                    top: star.top,
+                    left: star.left,
+                    width: star.size,
+                    height: star.size,
+                    backgroundColor: star.color,
+                    boxShadow: `0 0 8px ${star.color}`,
+                  }}
+                  className="absolute rounded-full"
+                />
+              ))}
+            </div>
+
+            {/* ORBIT 3 (OUTERMOST CELESTIAL ASTROLABE — 64s CW Revolution) */}
             <motion.div
               aria-hidden="true"
-              style={{ rotate: outerRingRotate }}
-              className="pointer-events-none absolute h-[255px] w-[255px] rounded-full border border-dashed border-[#34D399]/35 sm:h-[430px] sm:w-[430px]"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 64, repeat: Infinity, ease: "linear" }}
+              className="pointer-events-none absolute h-[304px] w-[304px] sm:h-[515px] sm:w-[515px]"
             >
-              <span className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-[#38BDF8] shadow-[0_0_12px_#38BDF8]" />
-              <span className="absolute -bottom-1.5 left-1/2 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-[#34D399]" />
+              {/* Precision Engraved Astrolabe SVG + Tapered Plasma Comet Wakes */}
+              <svg viewBox="0 0 400 400" className="h-full w-full overflow-visible">
+                <defs>
+                  <linearGradient id="goldCometWake" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#F5C451" stopOpacity="0" />
+                    <stop offset="65%" stopColor="#F5C451" stopOpacity="0.45" />
+                    <stop offset="100%" stopColor="#FEF08A" stopOpacity="0.95" />
+                  </linearGradient>
+                  <linearGradient id="cyanCometWake" x1="100%" y1="0%" x2="0%" y2="0%">
+                    <stop offset="0%" stopColor="#38BDF8" stopOpacity="0" />
+                    <stop offset="65%" stopColor="#38BDF8" stopOpacity="0.45" />
+                    <stop offset="100%" stopColor="#BAE6FD" stopOpacity="0.95" />
+                  </linearGradient>
+                </defs>
+
+                {/* Outer Celestial Track */}
+                <circle
+                  cx="200"
+                  cy="200"
+                  r="190"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.09)"
+                  strokeWidth="0.9"
+                  strokeDasharray="2 6 12 6"
+                />
+                {/* Inner Harmonic Sub-Track */}
+                <circle
+                  cx="200"
+                  cy="200"
+                  r="183"
+                  fill="none"
+                  stroke="rgba(245,196,81,0.16)"
+                  strokeWidth="0.6"
+                  strokeDasharray="1 9"
+                />
+
+                {/* Cardinal Astrolabe Diamond Markers */}
+                <polygon points="200,4 204,10 200,16 196,10" fill="rgba(245,196,81,0.55)" />
+                <polygon points="396,200 390,204 384,200 390,196" fill="rgba(56,189,248,0.55)" />
+                <polygon points="200,396 204,390 200,384 196,390" fill="rgba(52,211,153,0.55)" />
+                <polygon points="4,200 10,204 16,200 10,196" fill="rgba(255,30,0,0.55)" />
+
+                {/* Trailing Plasma Wake Behind Top Gold Sovereign Planet */}
+                <path
+                  d="M 118 29 A 190 190 0 0 1 200 10"
+                  fill="none"
+                  stroke="url(#goldCometWake)"
+                  strokeWidth="2.8"
+                  strokeLinecap="round"
+                />
+
+                {/* Trailing Plasma Wake Behind Bottom Sapphire World */}
+                <path
+                  d="M 282 371 A 190 190 0 0 1 200 390"
+                  fill="none"
+                  stroke="url(#cyanCometWake)"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                />
+              </svg>
+
+              {/* Top Planet: Solar-Gold Sovereign World with Atmospheric Corona */}
+              <div className="absolute top-[2.5%] left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center">
+                <span className="absolute h-7 w-7 animate-pulse rounded-full bg-[#F5C451]/30 blur-sm sm:h-9 sm:w-9" />
+                <span
+                  className="relative h-4 w-4 rounded-full border border-[#FEF08A]/70 shadow-[0_0_20px_rgba(245,196,81,0.95)] sm:h-5 sm:w-5"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 30% 28%, #FEF9C3 0%, #F5C451 45%, #B45309 82%, #451A03 100%)",
+                  }}
+                />
+              </div>
+
+              {/* Bottom Planet: Deep Sapphire Ice World */}
+              <div className="absolute bottom-[2.5%] left-1/2 flex -translate-x-1/2 translate-y-1/2 items-center justify-center">
+                <span className="absolute h-6 w-6 rounded-full bg-[#38BDF8]/25 blur-sm sm:h-7 sm:w-7" />
+                <span
+                  className="relative h-3 w-3 rounded-full border border-[#BAE6FD]/60 shadow-[0_0_16px_rgba(56,189,248,0.95)] sm:h-4 sm:w-4"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 32% 28%, #E0F2FE 0%, #0EA5E9 55%, #1E3A8A 100%)",
+                  }}
+                />
+              </div>
             </motion.div>
 
-            {/* Inner Counter-Rotating Ring */}
+            {/* ORBIT 2 (MIDDLE — 38s Counter-Clockwise Revolution with Ringed Giant & Orbiting Moon) */}
             <motion.div
               aria-hidden="true"
-              style={{ rotate: innerRingRotate }}
-              className="pointer-events-none absolute h-[215px] w-[215px] rounded-full border border-white/12 sm:h-[365px] sm:w-[365px]"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 38, repeat: Infinity, ease: "linear" }}
+              className="pointer-events-none absolute h-[260px] w-[260px] rounded-full border border-[#34D399]/25 sm:h-[435px] sm:w-[435px]"
             >
-              <span className="absolute top-1/2 -left-1.5 h-2.5 w-2.5 -translate-y-1/2 rotate-45 bg-[#34D399]" />
-              <span className="absolute top-1/2 -right-1.5 h-2.5 w-2.5 -translate-y-1/2 rotate-45 bg-[#38BDF8]" />
+              {/* Luminous Sector Arc Overlay */}
+              <div
+                className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#38BDF8]/50 border-b-[#10B981]/45"
+              />
+
+              {/* Top: Ringed Cyan Gas Giant + Its Own Revolving Micro-Moon */}
+              <div className="absolute -top-2.5 left-1/2 flex h-6 w-6 -translate-x-1/2 items-center justify-center sm:-top-3 sm:h-7 sm:w-7">
+                {/* Atmospheric Halo */}
+                <span className="absolute h-7 w-7 rounded-full bg-[#38BDF8]/25 blur-sm sm:h-9 sm:w-9" />
+                {/* 3D Banded Sphere */}
+                <span
+                  className="relative h-4 w-4 rounded-full shadow-[0_0_18px_rgba(56,189,248,0.95)] sm:h-5 sm:w-5"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 28% 25%, #F0F9FF 0%, #38BDF8 45%, #0284C7 75%, #082F49 100%)",
+                  }}
+                />
+                {/* Dual Tilted Planetary Rings */}
+                <span className="absolute h-2.5 w-8 -rotate-25 rounded-full border border-[#BAE6FD]/85 shadow-[0_0_8px_rgba(56,189,248,0.6)] sm:h-3 sm:w-10" />
+                <span className="absolute h-3 w-9 -rotate-25 rounded-full border border-[#38BDF8]/40 sm:h-3.5 sm:w-11" />
+
+                {/* Sub-Orbiting Micro-Moon Revolving Around the Gas Giant */}
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 5.5, repeat: Infinity, ease: "linear" }}
+                  className="absolute h-9 w-9 sm:h-12 sm:w-12"
+                >
+                  <span className="absolute top-0 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-white shadow-[0_0_6px_#FFFFFF]" />
+                </motion.div>
+              </div>
+
+              {/* Bottom: Bioluminescent Emerald Biosphere World */}
+              <div className="absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center justify-center sm:-bottom-2.5">
+                <span className="absolute h-6 w-6 rounded-full bg-[#10B981]/30 blur-sm sm:h-8 sm:w-8" />
+                <span
+                  className="relative h-3.5 w-3.5 rounded-full border border-[#A7F3D0]/70 shadow-[0_0_18px_rgba(52,211,153,0.95)] sm:h-4.5 sm:w-4.5"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 30% 28%, #D1FAE5 0%, #10B981 50%, #064E3B 100%)",
+                  }}
+                />
+              </div>
+            </motion.div>
+
+            {/* ORBIT 1 (INNERMOST — 22s Fast Clockwise Singularity & Quantum Relay) */}
+            <motion.div
+              aria-hidden="true"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+              className="pointer-events-none absolute h-[218px] w-[218px] rounded-full border border-dashed border-[#FF1E00]/35 sm:h-[364px] sm:w-[364px]"
+            >
+              {/* Left: Molten Crimson Singularity Planet with Gold Corona Flare */}
+              <div className="absolute top-1/2 -left-2 flex -translate-y-1/2 items-center justify-center sm:-left-2.5">
+                <span className="absolute h-6 w-6 animate-ping rounded-full bg-[#FF1E00]/35 [animation-duration:3s]" />
+                <span
+                  className="relative h-3.5 w-3.5 rounded-full border border-[#F5C451]/80 shadow-[0_0_18px_rgba(255,30,0,1)] sm:h-4 sm:w-4"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 30% 30%, #FEF08A 0%, #FF1E00 52%, #7F1D1D 100%)",
+                  }}
+                />
+              </div>
+
+              {/* Right: Quantum Telemetry Satellite with Solar Wing Arrays */}
+              <div className="absolute top-1/2 -right-2 flex -translate-y-1/2 items-center justify-center sm:-right-2.5">
+                <span className="h-3.5 w-[1.5px] bg-[#38BDF8]/80 sm:h-4" />
+                <span className="mx-0.5 h-2 w-2 rotate-45 bg-[#2DD4BF] shadow-[0_0_10px_#2DD4BF] sm:h-2.5 sm:w-2.5" />
+                <span className="h-3.5 w-[1.5px] bg-[#38BDF8]/80 sm:h-4" />
+              </div>
             </motion.div>
 
             {/* Scroll-Driven Parallax & Tilt Wrapper */}
@@ -461,102 +705,109 @@ export default function AboutProfile({ profile }) {
               }}
               className="relative z-10 w-full max-w-[205px] sm:max-w-[320px]"
             >
-              {/* Cursor & Touch-Tracking 3D Interactive ASCII Card */}
+              {/* Perpetual Ambient 3D Levitation Wrapper */}
               <motion.div
-                ref={frameRef}
-                onMouseMove={(e) => updateInteraction(e.clientX, e.clientY)}
-                onMouseLeave={resetInteraction}
-                onTouchMove={(e) => {
-                  if (e.touches[0]) {
-                    updateInteraction(
-                      e.touches[0].clientX,
-                      e.touches[0].clientY
-                    );
-                  }
+                animate={{
+                  y: [-6, 6, -6],
+                  rotateZ: [-1.2, 1.2, -1.2],
                 }}
-                onTouchEnd={resetInteraction}
-                style={{
-                  rotateX: cursorRotateX,
-                  rotateY: cursorRotateY,
-                  rotateZ: cursorRotateZ,
-                  transformStyle: "preserve-3d",
+                transition={{
+                  duration: 5.2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
                 }}
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                className="group relative cursor-crosshair rounded-[26px] border border-[#38BDF8]/25 bg-[#090D16] p-2 shadow-[0_30px_75px_rgba(0,0,0,0.9)] transition-colors hover:border-[#34D399]/60 sm:rounded-[28px] sm:p-2.5"
               >
-                {/* 4 Corner Crosshair '+' Reticles */}
-                <span className="pointer-events-none absolute -top-3 -left-3 font-mono-tech text-xs text-[#34D399]">
-                  +
-                </span>
-                <span className="pointer-events-none absolute -top-3 -right-3 font-mono-tech text-xs text-[#38BDF8]">
-                  +
-                </span>
-                <span className="pointer-events-none absolute -bottom-3 -left-3 font-mono-tech text-xs text-[#38BDF8]">
-                  +
-                </span>
-                <span className="pointer-events-none absolute -bottom-3 -right-3 font-mono-tech text-xs text-[#34D399]">
-                  +
-                </span>
-
-                {/* Cursor Specular Glare Overlay */}
+                {/* Global Cursor & Touch-Tracking 3D Interactive ASCII Card */}
                 <motion.div
-                  aria-hidden="true"
-                  style={{ background: specularGradient }}
-                  className="pointer-events-none absolute inset-0 z-20 rounded-[26px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                />
+                  ref={frameRef}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  style={{
+                    x: cursorShiftX,
+                    y: cursorShiftY,
+                    rotateX: cursorRotateX,
+                    rotateY: cursorRotateY,
+                    rotateZ: cursorRotateZ,
+                    transformStyle: "preserve-3d",
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                  className="group relative cursor-crosshair rounded-[26px] border border-[#38BDF8]/30 bg-[#090D16] p-2 shadow-[0_30px_75px_rgba(0,0,0,0.9)] transition-colors hover:border-[#34D399]/70 sm:rounded-[28px] sm:p-2.5"
+                >
+                  {/* 4 Corner Crosshair '+' Reticles */}
+                  <span className="pointer-events-none absolute -top-3 -left-3 font-mono-tech text-xs text-[#34D399]">
+                    +
+                  </span>
+                  <span className="pointer-events-none absolute -top-3 -right-3 font-mono-tech text-xs text-[#38BDF8]">
+                    +
+                  </span>
+                  <span className="pointer-events-none absolute -bottom-3 -left-3 font-mono-tech text-xs text-[#38BDF8]">
+                    +
+                  </span>
+                  <span className="pointer-events-none absolute -bottom-3 -right-3 font-mono-tech text-xs text-[#34D399]">
+                    +
+                  </span>
 
-                {/* ASCII Code Portrait Frame */}
-                <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[20px] bg-[#06080F] sm:rounded-[22px]">
-                  <AsciiMatrixCanvas
-                    imageUrl={avatarUrl}
-                    brandName={brandName}
-                    theme={asciiTheme}
-                    pointerRef={asciiPointerRef}
+                  {/* Continuous Specular Glare Overlay */}
+                  <motion.div
+                    aria-hidden="true"
+                    style={{ background: specularGradient }}
+                    className="pointer-events-none absolute inset-0 z-20 rounded-[26px] opacity-80 transition-opacity duration-300 group-hover:opacity-100"
                   />
 
-                  {/* Top Color Spectrum Switcher Pill (CYBER / MATRIX / PRISM) */}
-                  <div className="absolute top-2.5 right-2.5 z-30 flex items-center gap-1 rounded-full border border-white/15 bg-black/80 p-0.5 backdrop-blur-md">
-                    {["cyber", "matrix", "prism"].map((item) => (
-                      <button
-                        key={item}
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setAsciiTheme(item);
-                        }}
-                        className={`cursor-pointer rounded-full px-2 py-0.5 font-mono-tech text-[8px] uppercase tracking-wider transition-colors sm:text-[9px] ${
-                          asciiTheme === item
-                            ? "bg-gradient-to-r from-[#0EA5E9] to-[#10B981] font-bold text-black"
-                            : "text-white/60 hover:text-white"
-                        }`}
-                      >
-                        {item}
-                      </button>
-                    ))}
+                  {/* ASCII Code Portrait Frame */}
+                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[20px] bg-[#06080F] sm:rounded-[22px]">
+                    <AsciiMatrixCanvas
+                      imageUrl={avatarUrl}
+                      brandName={brandName}
+                      theme={asciiTheme}
+                      pointerRef={asciiPointerRef}
+                    />
+
+                    {/* Top Color Spectrum Switcher Pill (CYBER / MATRIX / PRISM) */}
+                    <div className="absolute top-2.5 right-2.5 z-30 flex items-center gap-1 rounded-full border border-white/15 bg-black/80 p-0.5 backdrop-blur-md">
+                      {["cyber", "matrix", "prism"].map((item) => (
+                        <button
+                          key={item}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setAsciiTheme(item);
+                          }}
+                          className={`cursor-pointer rounded-full px-2 py-0.5 font-mono-tech text-[8px] uppercase tracking-wider transition-colors sm:text-[9px] ${
+                            asciiTheme === item
+                              ? "bg-gradient-to-r from-[#0EA5E9] to-[#10B981] font-bold text-black"
+                              : "text-white/60 hover:text-white"
+                          }`}
+                        >
+                          {item}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Bottom Subtle Gradient Overlay */}
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+
+                    <div className="pointer-events-none absolute bottom-2.5 left-3 right-3 flex items-center justify-between font-mono-tech text-[9px] uppercase tracking-wider text-white/85 sm:text-[10px]">
+                      <span className="text-[#38BDF8]">{brandName} // ASCII</span>
+                      <span className="rounded-full bg-[#10B981] px-2 py-0.5 text-[8px] font-bold text-black sm:text-[9px]">
+                        {isZooming ? "ZOOM 2.2X" : "HOVER ZOOM"}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Bottom Subtle Gradient Overlay */}
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-
-                  <div className="pointer-events-none absolute bottom-2.5 left-3 right-3 flex items-center justify-between font-mono-tech text-[9px] uppercase tracking-wider text-white/85 sm:text-[10px]">
-                    <span className="text-[#38BDF8]">{brandName} // ASCII </span>
-                    <span className="rounded-full bg-[#10B981] px-2 py-0.5 text-[8px] font-bold text-black sm:text-[9px]">
-                      {isZooming ? "ZOOM 2.2X" : "HOVER ZOOM"}
-                    </span>
+                  {/* Bottom Card Telemetry Strip */}
+                  <div className="mt-2 flex items-center justify-between px-1.5 pb-0.5 font-mono-tech text-[10px] text-white/60 sm:mt-2.5 sm:px-2 sm:pb-1 sm:text-[11px]">
+                    <span className="truncate">{location}</span>
+                    <span className="text-[#34D399]">3D GYRO</span>
                   </div>
-                </div>
-
-                {/* Bottom Card Telemetry Strip */}
-                <div className="mt-2 flex items-center justify-between px-1.5 pb-0.5 font-mono-tech text-[10px] text-white/60 sm:mt-2.5 sm:px-2 sm:pb-1 sm:text-[11px]">
-                  <span className="truncate">{location}</span>
-                  <span className="text-[#34D399]">LIVE CODE</span>
-                </div>
+                </motion.div>
               </motion.div>
 
-              {/* Orbiting Rotating Stamp Badge */}
+              {/* Continuously Revolving Stamp Badge */}
               <motion.div
-                style={{ rotate: badgeOrbitRotate }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
                 aria-hidden="true"
                 className="pointer-events-none absolute -right-4 -bottom-4 z-20 flex h-16 w-16 items-center justify-center rounded-full border border-[#34D399]/40 bg-[#08080A]/90 shadow-xl backdrop-blur-md sm:-right-7 sm:-bottom-7 sm:h-24 sm:w-24"
               >
@@ -581,6 +832,29 @@ export default function AboutProfile({ profile }) {
                 <span className="absolute h-2 w-2 rounded-full bg-[#34D399] sm:h-2.5 sm:w-2.5" />
               </motion.div>
             </motion.div>
+
+            {/* FOREGROUND 3D ELLIPTICAL ENERGY RING (Sweeps across lower front plane for cinema depth) */}
+            <div
+              aria-hidden="true"
+              style={{ perspective: "900px" }}
+              className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
+            >
+              <div
+                style={{
+                  transform: "rotateX(74deg) rotateZ(-20deg)",
+                  transformStyle: "preserve-3d",
+                }}
+                className="relative h-[265px] w-[265px] rounded-full border-b-2 border-[#38BDF8]/45 shadow-[0_12px_25px_rgba(56,189,248,0.25)] sm:h-[430px] sm:w-[430px]"
+              >
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 9, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-0"
+                >
+                  <span className="absolute bottom-0 left-1/2 h-2 w-6 -translate-x-1/2 translate-y-1/2 rounded-full bg-gradient-to-r from-transparent via-[#F5C451] to-white shadow-[0_0_16px_#F5C451]" />
+                </motion.div>
+              </div>
+            </div>
           </div>
 
           {/* RIGHT COLUMN: Identity Story, Highlights & Quick Actions */}
