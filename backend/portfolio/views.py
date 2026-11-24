@@ -1,3 +1,4 @@
+import os
 import hashlib
 from datetime import timedelta
 from django.contrib.auth import authenticate
@@ -11,6 +12,8 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from .serializers import ContactMessageSerializer
+
 
 from .models import Profile, Project, Skill, SocialLink, VisitorLog
 from .serializers import (
@@ -312,3 +315,46 @@ class AdminSocialDetailView(APIView):
         social = get_object_or_404(SocialLink, pk=pk)
         social.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class ContactCreateView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = ContactMessageSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        contact = serializer.save()
+
+        resend_api_key = os.environ.get("RESEND_API_KEY", "").strip()
+        receiver_email = os.environ.get("CONTACT_RECEIVER_EMAIL", "").strip()
+
+        if resend_api_key and receiver_email:
+            try:
+                requests.post(
+                    "https://api.resend.com/emails",
+                    headers={
+                        "Authorization": f"Bearer {resend_api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "from": "Portfolio Contact <onboarding@resend.dev>",
+                        "to": [receiver_email],
+                        "reply_to": contact.email,
+                        "subject": f"[Portfolio] {contact.subject or 'New Message'} from {contact.name}",
+                        "text": (
+                            f"Name: {contact.name}\n"
+                            f"Email: {contact.email}\n"
+                            f"Subject: {contact.subject or 'N/A'}\n\n"
+                            f"Message:\n{contact.message}"
+                        ),
+                    },
+                    timeout=10,
+                )
+            except requests.RequestException:
+                pass
+
+        return Response(
+            {"detail": "Message sent successfully."},
+            status=status.HTTP_201_CREATED,
+        )

@@ -157,4 +157,9 @@ export const deleteAdminSocial = async (id) => {
   });
 };
 
+export const sendContactMessage = async (formData) => {
+  const response = await apiClient.post('/contact/', formData);
+  return response.data;
+};
+
 export default apiClient;

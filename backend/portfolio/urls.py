@@ -11,6 +11,7 @@ from .views import (
     AdminSkillDetailView,
     AdminSocialListCreateView,
     AdminSocialDetailView,
+    ContactCreateView
 )
 
 urlpatterns = [
@@ -28,4 +29,5 @@ urlpatterns = [
     path("admin/skills/<int:pk>/", AdminSkillDetailView.as_view(), name="admin-skill-detail"),
     path("admin/socials/", AdminSocialListCreateView.as_view(), name="admin-socials"),
     path("admin/socials/<int:pk>/", AdminSocialDetailView.as_view(), name="admin-social-detail"),
+    path('contact/', ContactCreateView.as_view(), name='contact-create'),
 ]

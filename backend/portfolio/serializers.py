@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Profile, Project, Skill, SocialLink, GalleryImage
+from .models import ContactMessage
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -91,3 +92,10 @@ class GalleryImageSerializer(serializers.ModelSerializer):
             "accent_color",
             "order",
         ]
+
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactMessage
+        fields = ['id', 'name', 'email', 'subject', 'message', 'created_at']
+        read_only_fields = ['id', 'created_at']
