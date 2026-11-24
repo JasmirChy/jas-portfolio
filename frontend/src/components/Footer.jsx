@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-export default function Footer({ profile, socials = [] }) {
+export default function Footer({ profile, socials = [], onOpenAdmin }) {
   const [copied, setCopied] = useState(false);
 
   const brandName = profile?.brand_name || "JAS";
   const fullName = profile?.full_name || "Jasmir Chaudhary";
 
-  // Extract email address from Django SocialLink if available
   const emailItem = socials.find((s) => s.platform === "email");
   const rawEmail = emailItem
     ? emailItem.url.replace(/^mailto:/i, "")
@@ -79,7 +78,7 @@ export default function Footer({ profile, socials = [] }) {
               <button
                 type="button"
                 onClick={handleCopyEmail}
-                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/50 px-5 py-3 font-mono-tech text-xs text-white/90 backdrop-blur-md transition-colors hover:border-[#F5C451] hover:text-[#F5C451]"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-black/50 px-5 py-3 font-mono-tech text-xs text-white/90 backdrop-blur-md transition-colors hover:border-[#F5C451] hover:text-[#F5C451]"
               >
                 {copied ? "✓ Email Copied!" : rawEmail}
               </button>
@@ -104,21 +103,29 @@ export default function Footer({ profile, socials = [] }) {
           )}
         </div>
 
-        {/* Bottom Copyright & Quick Admin / 404 Utility Links */}
+        {/* Bottom Copyright & Quick Admin / Back-to-top Links */}
         <div className="mt-10 flex flex-col items-center justify-between gap-4 font-mono-tech text-xs text-white/45 sm:flex-row">
           <p>
             © {new Date().getFullYear()} {brandName} ({fullName}). All rights reserved.
           </p>
 
           <div className="flex items-center gap-5">
-            <a
-              href="http://127.0.0.1:8000/admin/"
-              target="_blank"
-              rel="noreferrer"
-              className="transition-colors hover:text-[#F5C451]"
-            >
-              Admin Portal
-            </a>
+            {onOpenAdmin ? (
+              <button
+                type="button"
+                onClick={onOpenAdmin}
+                className="cursor-pointer transition-colors hover:text-[#F5C451]"
+              >
+                Admin Portal
+              </button>
+            ) : (
+              <a
+                href="/admin"
+                className="transition-colors hover:text-[#F5C451]"
+              >
+                Admin Portal
+              </a>
+            )}
             <a href="#top" className="transition-colors hover:text-white">
               Back to top ↑
             </a>

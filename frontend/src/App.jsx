@@ -1,6 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
-import { fetchPortfolioData } from "./api/portfolioApi";
+import {
+  fetchPortfolioData,
+  getAdminToken,
+  trackVisit,
+} from "./api/portfolioApi";
 import Preloader from "./components/Preloader";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -9,6 +13,8 @@ import ProjectCarousel3D from "./components/ProjectCarousel3D";
 import SkillsSection from "./components/SkillsSection";
 import Footer from "./components/Footer";
 import NotFound404 from "./components/NotFound404";
+import AdminLogin from "./components/AdminLogin";
+import AdminDashboard from "./components/AdminDashboard";
 
 const FALLBACK_DATA = {
   profile: {
@@ -29,9 +35,9 @@ const FALLBACK_DATA = {
 export default function App() {
   const [data, setData] = useState(FALLBACK_DATA);
   const [loadingDone, setLoadingDone] = useState(false);
-  const [isNotFound, setIsNotFound] = useState(
-    () => window.location.pathname !== "/"
-  );
+  const [pathname, setPathname] = useState(() => window.location.pathname);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => Boolean(getAdminToken()));
+  const hasTrackedRef = useRef(false);
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -40,47 +46,81 @@ export default function App() {
     restDelta: 0.001,
   });
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const res = await fetchPortfolioData();
-        setData({
-          profile: res.profile || FALLBACK_DATA.profile,
-          projects: res.projects || [],
-          skills: res.skills || [],
-          socials: res.socials || [],
-        });
-      } catch (err) {
-        console.error("Failed to fetch portfolio data from Django API:", err);
-      }
-    };
+  const loadPortfolioData = async () => {
+    try {
+      const res = await fetchPortfolioData();
+      setData({
+        profile: res.profile || FALLBACK_DATA.profile,
+        projects: res.projects || [],
+        skills: res.skills || [],
+        socials: res.socials || [],
+      });
+    } catch (err) {
+      console.error("Failed to fetch portfolio data from Django API:", err);
+    }
+  };
 
-    loadData();
+  useEffect(() => {
+    loadPortfolioData();
   }, []);
+
+  // Track visitor once when visiting public homepage
+  useEffect(() => {
+    if (pathname === "/" && !hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      trackVisit("/");
+    }
+  }, [pathname]);
 
   useEffect(() => {
     const handlePopState = () => {
-      setIsNotFound(window.location.pathname !== "/");
+      setPathname(window.location.pathname);
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  const handleBackHome = () => {
-    window.history.pushState({}, "", "/");
-    setIsNotFound(false);
-    setLoadingDone(true);
+  const navigateTo = (targetPath) => {
+    window.history.pushState({}, "", targetPath);
+    setPathname(targetPath);
+    if (targetPath === "/") {
+      setLoadingDone(true);
+      loadPortfolioData();
+    }
   };
 
-  if (isNotFound) {
+  // Route 1: /admin (Protected Dashboard or Login Gate)
+  if (pathname === "/admin" || pathname === "/admin/") {
+    if (!isAuthenticated) {
+      return (
+        <AdminLogin
+          brandName={data.profile?.brand_name || "JAS"}
+          onLoginSuccess={() => setIsAuthenticated(true)}
+          onBackHome={() => navigateTo("/")}
+        />
+      );
+    }
+
     return (
-      <NotFound404
+      <AdminDashboard
         brandName={data.profile?.brand_name || "JAS"}
-        onBackHome={handleBackHome}
+        onLogout={() => setIsAuthenticated(false)}
+        onViewSite={() => navigateTo("/")}
       />
     );
   }
 
+  // Route 2: Any unknown URL -> Shattered-Glass 404
+  if (pathname !== "/") {
+    return (
+      <NotFound404
+        brandName={data.profile?.brand_name || "JAS"}
+        onBackHome={() => navigateTo("/")}
+      />
+    );
+  }
+
+  // Route 3: Public Portfolio Home (/)
   return (
     <div className="min-h-screen bg-[#08080A] text-white">
       <Preloader
@@ -91,7 +131,6 @@ export default function App() {
 
       {loadingDone && (
         <>
-          {/* Top Scroll Progress Bar */}
           <motion.div
             style={{ scaleX }}
             className="fixed top-0 left-0 right-0 z-50 h-[2.5px] origin-left bg-gradient-to-r from-[#FF1E00] via-[#F5C451] to-white"
@@ -107,7 +146,11 @@ export default function App() {
             <ProjectCarousel3D projects={data.projects} />
             <SkillsSection skills={data.skills} />
           </main>
-          <Footer profile={data.profile} socials={data.socials} />
+          <Footer
+            profile={data.profile}
+            socials={data.socials}
+            onOpenAdmin={() => navigateTo("/admin")}
+          />
         </>
       )}
     </div>

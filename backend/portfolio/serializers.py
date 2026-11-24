@@ -75,6 +75,7 @@ class SocialLinkSerializer(serializers.ModelSerializer):
             "url",
             "icon_image",
             "order",
+            "is_active",
         ]
 
 
