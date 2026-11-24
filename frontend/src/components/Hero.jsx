@@ -1,5 +1,11 @@
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  useMotionTemplate,
+} from "framer-motion";
 
 function SocialIcon({ platform }) {
   switch (platform) {
@@ -44,8 +50,200 @@ function SocialIcon({ platform }) {
   }
 }
 
+function HoloPortraitReactor({ avatarUrl, fullName, brandName, overdrive, onToggle }) {
+  const stageRef = useRef(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const glareX = useMotionValue(50);
+  const glareY = useMotionValue(50);
+
+  const springConfig = { stiffness: 200, damping: 20, mass: 0.6 };
+  const smoothX = useSpring(mouseX, springConfig);
+  const smoothY = useSpring(mouseY, springConfig);
+  const smoothGlareX = useSpring(glareX, springConfig);
+  const smoothGlareY = useSpring(glareY, springConfig);
+
+  const rotateX = useTransform(smoothY, [-0.5, 0.5], [16, -16]);
+  const rotateY = useTransform(smoothX, [-0.5, 0.5], [-16, 16]);
+  const holoSheen = useMotionTemplate`radial-gradient(circle at ${smoothGlareX}% ${smoothGlareY}%, rgba(56, 189, 248, 0.35) 0%, rgba(245, 196, 81, 0.18) 38%, transparent 70%)`;
+
+  const handleMouseMove = (e) => {
+    if (!stageRef.current) return;
+    const rect = stageRef.current.getBoundingClientRect();
+    const relX = (e.clientX - rect.left) / rect.width;
+    const relY = (e.clientY - rect.top) / rect.height;
+    mouseX.set(relX - 0.5);
+    mouseY.set(relY - 0.5);
+    glareX.set(relX * 100);
+    glareY.set(relY * 100);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+    glareX.set(50);
+    glareY.set(50);
+  };
+
+  return (
+    <motion.div
+      ref={stageRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={onToggle}
+      whileTap={{ scale: 0.95 }}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+      }}
+      title="Click to toggle Reactor Overdrive"
+      className="group relative flex h-32 w-32 shrink-0 cursor-pointer items-center justify-center select-none sm:h-44 sm:w-44 lg:h-[360px] lg:w-[360px] xl:h-[395px] xl:w-[395px]"
+    >
+      {/* Multi-Spectrum Ambient Reactor Aura */}
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-4 rounded-full blur-2xl transition-all duration-500 lg:inset-8 lg:blur-3xl ${
+          overdrive
+            ? "bg-gradient-to-tr from-[#06B6D4]/45 via-[#F5C451]/35 to-[#FF1E00]/45 scale-110"
+            : "bg-gradient-to-tr from-[#FF1E00]/30 via-[#F5C451]/20 to-[#0EA5E9]/25 group-hover:scale-105"
+        }`}
+      />
+
+      {/* Ring 1: Outer Precision SVG Telemetry & Degree Tick Ring */}
+      <motion.svg
+        viewBox="0 0 200 200"
+        animate={{ rotate: 360 }}
+        transition={{
+          duration: overdrive ? 10 : 34,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+        className="pointer-events-none absolute inset-0 h-full w-full"
+      >
+        <circle
+          cx="100"
+          cy="100"
+          r="96"
+          fill="none"
+          stroke={overdrive ? "rgba(56,189,248,0.55)" : "rgba(245,196,81,0.35)"}
+          strokeWidth="0.9"
+          strokeDasharray="4 6 18 6"
+        />
+        <circle
+          cx="100"
+          cy="100"
+          r="90"
+          fill="none"
+          stroke="rgba(255,255,255,0.12)"
+          strokeWidth="0.6"
+          strokeDasharray="1 5"
+        />
+        {/* Cardinal Reactor Nodes */}
+        <circle cx="100" cy="4" r="2.6" fill="#FF1E00" />
+        <circle cx="196" cy="100" r="2.6" fill="#38BDF8" />
+        <circle cx="100" cy="196" r="2.6" fill="#F5C451" />
+        <circle cx="4" cy="100" r="2.6" fill="#10B981" />
+      </motion.svg>
+
+      {/* Ring 2: Counter-Rotating High-Energy Plasma Arc */}
+      <motion.div
+        animate={{ rotate: -360 }}
+        transition={{
+          duration: overdrive ? 6 : 18,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+        className="pointer-events-none absolute inset-2.5 rounded-full border-2 border-transparent border-t-[#FF1E00] border-r-[#F5C451] border-b-[#38BDF8]/80 sm:inset-3.5 lg:inset-6 lg:border-[2.5px]"
+      />
+
+      {/* Ring 3: Inner Dashed Gyro Stabilizer Ring */}
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{
+          duration: overdrive ? 8 : 22,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+        className="pointer-events-none absolute inset-4 rounded-full border border-dashed border-white/25 sm:inset-5 lg:inset-10"
+      />
+
+      {/* Core Portrait Viewport */}
+      <div
+        className={`relative h-[94px] w-[94px] overflow-hidden rounded-full border-2 bg-[#0B0B10] transition-all duration-500 sm:h-[132px] sm:w-[132px] lg:h-[268px] lg:w-[268px] xl:h-[296px] xl:w-[296px] ${
+          overdrive
+            ? "border-[#38BDF8] shadow-[0_0_50px_rgba(56,189,248,0.55)]"
+            : "border-white/20 shadow-[0_20px_60px_rgba(0,0,0,0.9)] group-hover:border-[#F5C451]/70"
+        }`}
+      >
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt={fullName}
+            className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-108"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FF1E00] via-[#12121A] to-[#08080A] font-display text-3xl text-white lg:text-7xl">
+            {brandName}
+          </div>
+        )}
+
+        {/* Cursor-Reactive Holographic Light Sheen */}
+        <motion.div
+          aria-hidden="true"
+          style={{ background: holoSheen }}
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        />
+
+        {/* Continuous Holographic Scan Beam */}
+        <motion.div
+          animate={{ y: ["-120%", "260%"] }}
+          transition={{
+            duration: overdrive ? 2.1 : 3.6,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="pointer-events-none absolute inset-x-0 h-8 bg-gradient-to-b from-transparent via-[#38BDF8]/30 to-transparent lg:h-14"
+        />
+
+        {/* Subtle Inner Rim Vignette */}
+        <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/15" />
+      </div>
+
+      {/* Desktop Floating Top-Left HUD Tag */}
+      <div className="pointer-events-none absolute top-4 left-2 hidden items-center gap-2 rounded-full border border-white/15 bg-[#09090E]/90 px-3 py-1 font-mono-tech text-[10px] tracking-widest text-[#38BDF8] shadow-xl backdrop-blur-md lg:flex">
+        <span className="h-1.5 w-1.5 rounded-full bg-[#10B981]" />
+        <span>ARCH // {brandName}</span>
+      </div>
+
+      {/* Desktop Floating Right Telemetry Pill */}
+      <div className="pointer-events-none absolute top-1/2 -right-3 hidden -translate-y-1/2 flex-col items-end rounded-xl border border-white/12 bg-[#09090E]/90 px-3 py-1.5 font-mono-tech text-[9px] tracking-wider text-white/75 shadow-xl backdrop-blur-md lg:flex">
+        <span className="text-[#F5C451]">3D_GYRO</span>
+        <span className="text-white/45">ACTIVE</span>
+      </div>
+
+      {/* Bottom Interactive Reactor Status Pill (Mobile + Desktop) */}
+      <div
+        className={`pointer-events-none absolute -bottom-1.5 flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono-tech text-[8px] tracking-widest shadow-lg backdrop-blur-md transition-colors sm:text-[9px] lg:bottom-2 lg:px-3.5 lg:py-1 lg:text-[10px] ${
+          overdrive
+            ? "border-[#38BDF8]/60 bg-[#07131A]/95 text-[#38BDF8]"
+            : "border-[#F5C451]/40 bg-[#08080C]/95 text-[#F5C451]"
+        }`}
+      >
+        <span
+          className={`h-1.5 w-1.5 animate-ping rounded-full ${
+            overdrive ? "bg-[#38BDF8]" : "bg-[#FF1E00]"
+          }`}
+        />
+        <span>{overdrive ? "OVERDRIVE // MAX" : "CORE // ONLINE"}</span>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Hero({ profile, socials = [] }) {
   const [timeString, setTimeString] = useState("");
+  const [overdrive, setOverdrive] = useState(false);
 
   useEffect(() => {
     const updateClock = () => {
@@ -73,95 +271,134 @@ export default function Hero({ profile, socials = [] }) {
     profile?.hero_headline || "I design and build websites and digital products.";
   const location = profile?.location || "Dhangadhi, Nepal";
   const status = profile?.availability_status || "Open to new projects.";
+  const avatarUrl = profile?.avatar || null;
 
   return (
     <section
       id="top"
-      className="relative overflow-hidden pt-24 pb-16 sm:pt-32 sm:pb-24"
+      className="relative flex min-h-[100dvh] flex-col justify-center overflow-hidden pt-20 pb-10 sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-24"
     >
-      {/* Mobile-First Crimson-to-Obsidian Top Gradient */}
+      {/* Crimson-to-Obsidian Top Spotlight */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-[440px] sm:h-[520px] bg-[radial-gradient(ellipse_90%_65%_at_50%_-10%,#FF1E00_0%,rgba(255,30,0,0.38)_42%,rgba(8,8,10,0)_80%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[440px] sm:h-[540px] bg-[radial-gradient(ellipse_90%_65%_at_50%_-10%,#FF1E00_0%,rgba(255,30,0,0.36)_42%,rgba(8,8,10,0)_80%)]"
+      />
+      {/* Subtle Cool Cyan Counter-Glow Behind Desktop Reactor */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/3 right-[8%] hidden h-[420px] w-[420px] rounded-full bg-[#0EA5E9]/[0.08] blur-[130px] lg:block"
       />
       <div className="film-grain pointer-events-none absolute inset-0 opacity-35" />
 
-      <div className="relative z-10 mx-auto max-w-6xl px-5 sm:px-8">
-        {/* Giant Sculpted Top Brand Wordmark */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="select-none"
-        >
-          <h1 className="font-display text-[24vw] leading-[0.84] uppercase tracking-tighter text-white/95 drop-shadow-[0_12px_30px_rgba(0,0,0,0.65)] sm:text-[13rem] md:text-[15.5rem]">
-            {brandName}
-            <span className="text-[#F5C451]">.</span>
-          </h1>
-        </motion.div>
-
-        {/* Statement, Live Telemetry & Social Links */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="mt-8 max-w-3xl"
-        >
-          <p className="font-mono-tech mb-3 text-xs uppercase tracking-[0.22em] text-[#F5C451]">
-            {fullName} — Full-Stack Engineer
-          </p>
-
-          <h2 className="font-syne text-2xl leading-snug font-bold text-white sm:text-4xl sm:leading-tight">
-            {headline}
-          </h2>
-
-          {/* Live Time & Availability Status */}
-          <div className="mt-6 space-y-1.5 font-mono-tech text-xs text-white/60">
-            <div className="flex items-center gap-2">
-              <span>{timeString}</span>
-              <span>•</span>
-              <span>{location}</span>
-            </div>
-            <div className="flex items-center gap-2 text-white/85">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
-              </span>
-              <span>{status}</span>
-            </div>
-          </div>
-
-          {/* Dynamic Social Links from Django Admin */}
-          <div className="mt-7 flex flex-wrap items-center gap-2.5">
-            {socials.map((item) => (
-              <a
-                key={item.id}
-                href={item.url}
-                target={item.platform === "email" ? "_self" : "_blank"}
-                rel="noreferrer"
-                className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-4 py-2 text-xs font-medium text-white backdrop-blur-md transition-all hover:border-[#F5C451] hover:bg-[#F5C451] hover:text-black sm:text-sm"
-              >
-                {item.icon_image ? (
-                  <img
-                    src={item.icon_image}
-                    alt={item.label}
-                    className="h-4 w-4 rounded-full object-cover"
-                  />
-                ) : (
-                  <SocialIcon platform={item.platform} />
-                )}
-                <span>{item.label}</span>
-              </a>
-            ))}
-
-            <a
-              href="#about"
-              className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-black transition-transform hover:scale-105 sm:text-sm"
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-5 sm:px-8">
+        <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-12 lg:gap-10">
+          {/* LEFT / MAIN COLUMN: Giant Wordmark, Headline, Telemetry & Socials */}
+          <div className="lg:col-span-7">
+            {/* Top Row: Sculpted Wordmark + Compact Reactor on Mobile/Tablet */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="flex items-center justify-between gap-3 select-none lg:block"
             >
-              Meet {brandName} ↓
-            </a>
+              <h1 className="font-display text-[21vw] leading-[0.84] uppercase tracking-tighter text-white/95 drop-shadow-[0_12px_30px_rgba(0,0,0,0.65)] sm:text-[9.5rem] lg:text-[10.5rem] xl:text-[12rem]">
+                {brandName}
+                <span className="text-[#F5C451]">.</span>
+              </h1>
+
+              {/* Mobile & Tablet Orbital Reactor */}
+              <div className="lg:hidden">
+                <HoloPortraitReactor
+                  avatarUrl={avatarUrl}
+                  fullName={fullName}
+                  brandName={brandName}
+                  overdrive={overdrive}
+                  onToggle={() => setOverdrive((prev) => !prev)}
+                />
+              </div>
+            </motion.div>
+
+            {/* Statement, Live Telemetry & Social Links */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              className="mt-6 max-w-2xl sm:mt-8"
+            >
+              <p className="font-mono-tech mb-2.5 text-xs uppercase tracking-[0.22em] text-[#F5C451] sm:mb-3">
+                {fullName} — Full-Stack Engineer
+              </p>
+
+              <h2 className="font-syne text-2xl leading-snug font-bold text-white sm:text-4xl sm:leading-tight">
+                {headline}
+              </h2>
+
+              {/* Live Time & Availability Status */}
+              <div className="mt-5 space-y-1.5 font-mono-tech text-xs text-white/60 sm:mt-6">
+                <div className="flex items-center gap-2">
+                  <span>{timeString}</span>
+                  <span>•</span>
+                  <span>{location}</span>
+                </div>
+                <div className="flex items-center gap-2 text-white/85">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                  </span>
+                  <span>{status}</span>
+                </div>
+              </div>
+
+              {/* Dynamic Social Links from Django Admin */}
+              <div className="mt-6 flex flex-wrap items-center gap-2 sm:mt-7 sm:gap-2.5">
+                {socials.map((item) => (
+                  <a
+                    key={item.id}
+                    href={item.url}
+                    target={item.platform === "email" ? "_self" : "_blank"}
+                    rel="noreferrer"
+                    className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-3.5 py-2 text-xs font-medium text-white backdrop-blur-md transition-all hover:border-[#F5C451] hover:bg-[#F5C451] hover:text-black sm:px-4 sm:text-sm"
+                  >
+                    {item.icon_image ? (
+                      <img
+                        src={item.icon_image}
+                        alt={item.label}
+                        className="h-4 w-4 rounded-full object-cover"
+                      />
+                    ) : (
+                      <SocialIcon platform={item.platform} />
+                    )}
+                    <span>{item.label}</span>
+                  </a>
+                ))}
+
+                <a
+                  href="#about"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-semibold text-black transition-transform hover:scale-105 sm:text-sm"
+                >
+                  Meet {brandName} ↓
+                </a>
+              </div>
+            </motion.div>
           </div>
-        </motion.div>
+
+          {/* RIGHT COLUMN (DESKTOP >= 1024px): Monumental 3D Holographic Portrait Reactor */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            style={{ perspective: 1200 }}
+            className="hidden items-center justify-center lg:col-span-5 lg:flex"
+          >
+            <HoloPortraitReactor
+              avatarUrl={avatarUrl}
+              fullName={fullName}
+              brandName={brandName}
+              overdrive={overdrive}
+              onToggle={() => setOverdrive((prev) => !prev)}
+            />
+          </motion.div>
+        </div>
       </div>
     </section>
   );

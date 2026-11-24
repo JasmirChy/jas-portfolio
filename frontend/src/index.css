@@ -41,3 +41,31 @@ html {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+/* Mobile-only full-screen section pacing (leaves desktop >= 768px untouched) */
+@media (max-width: 767px) {
+  html {
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+  }
+
+  /* Every major section fills at least one full mobile viewport */
+  main > section,
+  footer#contact {
+    min-height: 100svh;
+    min-height: 100dvh;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* Allow tall multi-card sections (Projects, Skills, Gallery) to scroll naturally from top */
+  main > section#projects,
+  main > section#skills,
+  main > section#gallery {
+    justify-content: flex-start;
+    padding-top: 5.5rem;
+    padding-bottom: 4rem;
+  }
+}
