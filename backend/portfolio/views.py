@@ -1,5 +1,6 @@
 import os
 import hashlib
+import requests
 from datetime import timedelta
 from django.contrib.auth import authenticate
 from django.db.models import Count
