@@ -12,7 +12,7 @@ export default function Footer({ profile, socials = [], onOpenAdmin }) {
   const emailItem = socials.find((s) => s.platform === "email");
   const rawEmail = emailItem
     ? emailItem.url.replace(/^mailto:/i, "")
-    : "hello@jasmirchaudhary.com.np";
+    : "jasmirchy@gmail.com";
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(rawEmail);
