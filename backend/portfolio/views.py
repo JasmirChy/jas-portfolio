@@ -24,6 +24,18 @@ from .serializers import (
     SocialLinkSerializer,
 )
 
+# Add this helper right above PortfolioDataView in views.py
+def get_client_visitor_meta(request):
+    forwarded = request.META.get("HTTP_X_FORWARDED_FOR")
+    ip = (
+        forwarded.split(",")[0].strip()
+        if forwarded
+        else request.META.get("REMOTE_ADDR", "127.0.0.1")
+    )
+    user_agent = request.META.get("HTTP_USER_AGENT", "Unknown")
+    raw_id = f"{ip}-{user_agent}".encode("utf-8")
+    visitor_hash = hashlib.sha256(raw_id).hexdigest()
+    return ip, user_agent, visitor_hash
 
 class PortfolioDataView(APIView):
     permission_classes = [AllowAny]
@@ -42,15 +54,13 @@ class PortfolioDataView(APIView):
             "socials": SocialLinkSerializer(socials, many=True, context=context).data,
         })
 
-
 class TrackVisitView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        forwarded = request.META.get("HTTP_X_FORWARDED_FOR")
-        ip = forwarded.split(",")[0].strip() if forwarded else request.META.get("REMOTE_ADDR", "127.0.0.1")
-        user_agent = request.META.get("HTTP_USER_AGENT", "Unknown")
+        ip, user_agent, visitor_hash = get_client_visitor_meta(request)
         path = request.data.get("path", "/")[:200]
+        submitted_email = (request.data.get("email") or "").strip().lower() or None
 
         ua_lower = user_agent.lower()
         if "mobile" in ua_lower or "android" in ua_lower or "iphone" in ua_lower:
@@ -71,18 +81,27 @@ class TrackVisitView(APIView):
         else:
             browser = "Other"
 
-        raw_id = f"{ip}-{user_agent}".encode("utf-8")
-        visitor_hash = hashlib.sha256(raw_id).hexdigest()
+        # Reuse previously captured email for this visitor if available
+        known_email = submitted_email or (
+            VisitorLog.objects.filter(visitor_hash=visitor_hash, email__isnull=False)
+            .exclude(email="")
+            .values_list("email", flat=True)
+            .first()
+        )
 
         VisitorLog.objects.create(
             ip_address=ip if ip else None,
             visitor_hash=visitor_hash,
+            email=known_email,
             device_type=device_type,
             browser=browser,
             path=path,
         )
-        return Response({"status": "recorded"}, status=status.HTTP_201_CREATED)
 
+        if submitted_email:
+            VisitorLog.objects.filter(visitor_hash=visitor_hash).update(email=submitted_email)
+
+        return Response({"status": "recorded"}, status=status.HTTP_201_CREATED)
 
 class AdminLoginView(APIView):
     permission_classes = [AllowAny]
@@ -135,11 +154,12 @@ class AdminStatsView(APIView):
                 "views": daily_map.get(str(day_date), 0),
             })
 
-        recent_logs = VisitorLog.objects.all()[:12]
+        recent_logs = VisitorLog.objects.all()[:20]
         recent_visitors = [
             {
                 "id": log.id,
                 "visitor_id": f"VIS-{log.visitor_hash[:6].upper()}",
+                "email": log.email or "",
                 "device_type": log.device_type,
                 "browser": log.browser,
                 "path": log.path,
@@ -160,6 +180,19 @@ class AdminStatsView(APIView):
         })
 
 
+class AdminClearVisitorsView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def delete(self, request):
+        deleted_count, _ = VisitorLog.objects.all().delete()
+        return Response(
+            {"detail": f"Cleared {deleted_count} visitor logs.", "deleted": deleted_count},
+            status=status.HTTP_200_OK,
+        )
+
+    def post(self, request):
+        return self.delete(request)
+    
 class AdminProfileView(APIView):
     permission_classes = [IsAdminUser]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
@@ -326,6 +359,9 @@ class ContactCreateView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         contact = serializer.save()
+        # Attach the sender's email/Gmail to their matching visitor records
+        _, _, visitor_hash = get_client_visitor_meta(request)
+        VisitorLog.objects.filter(visitor_hash=visitor_hash).update(email=contact.email.lower())
 
         resend_api_key = os.environ.get("RESEND_API_KEY", "").strip()
         receiver_email = os.environ.get("CONTACT_RECEIVER_EMAIL", "").strip()

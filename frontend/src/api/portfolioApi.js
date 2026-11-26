@@ -58,6 +58,15 @@ export const fetchAdminStats = async () => {
   return response.data;
 };
 
+export const clearAdminVisitors = async () => {
+  const response = await apiClient.post(
+    "/admin/visitors/clear/",
+    {},
+    { headers: authHeaders() }
+  );
+  return response.data;
+};
+
 // Admin Profile CRUD
 export const fetchAdminProfile = async () => {
   const response = await apiClient.get("/admin/profile/", {

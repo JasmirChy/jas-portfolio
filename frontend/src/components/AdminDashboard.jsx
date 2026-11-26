@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { fetchAdminStats, setAdminToken } from "../api/portfolioApi";
+import {
+  fetchAdminStats,
+  clearAdminVisitors,
+  setAdminToken,
+} from "../api/portfolioApi";
 import AdminProfileTab from "./admin/AdminProfileTab";
 import AdminProjectsTab from "./admin/AdminProjectsTab";
 import AdminSkillsTab from "./admin/AdminSkillsTab";
@@ -18,6 +22,9 @@ export default function AdminDashboard({ brandName = "JAS", onLogout, onViewSite
   const [activeTab, setActiveTab] = useState("overview");
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [clearError, setClearError] = useState("");
   const adminUser = localStorage.getItem("jas_admin_user") || "Admin";
 
   const loadStats = async () => {
@@ -41,8 +48,49 @@ export default function AdminDashboard({ brandName = "JAS", onLogout, onViewSite
 
   const handleTabSwitch = (tabId) => {
     setActiveTab(tabId);
+    setConfirmClear(false);
     if (tabId === "overview") {
       loadStats();
+    }
+  };
+
+const handleClearVisitors = async () => {
+    setClearError("");
+
+    if (!confirmClear) {
+      setConfirmClear(true);
+      return;
+    }
+
+    setClearing(true);
+    try {
+      await clearAdminVisitors();
+      setConfirmClear(false);
+      setStats((prev) =>
+        prev
+          ? {
+              ...prev,
+              total_views: 0,
+              unique_visitors: 0,
+              today_views: 0,
+              recent_visitors: [],
+              daily_chart: prev.daily_chart.map((d) => ({ ...d, views: 0 })),
+            }
+          : prev
+      );
+      await loadStats();
+    } catch (err) {
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        setAdminToken(null);
+        onLogout();
+      } else {
+        setClearError(
+          err.response?.data?.detail ||
+            `Failed to clear (${err.response?.status || "Network Error"})`
+        );
+      }
+    } finally {
+      setClearing(false);
     }
   };
 
@@ -199,17 +247,45 @@ export default function AdminDashboard({ brandName = "JAS", onLogout, onViewSite
                   </div>
                 </div>
 
-                <div className="mt-7 overflow-hidden rounded-2xl border border-white/10 bg-[#0D0D12]">
-                  <div className="border-b border-white/10 px-6 py-4">
-                    <p className="font-mono-tech text-xs uppercase tracking-widest text-white/70">
-                      RECENT VISITOR LOGS
-                    </p>
+<div className="mt-7 overflow-hidden rounded-2xl border border-white/10 bg-[#0D0D12]">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <p className="font-mono-tech text-xs uppercase tracking-widest text-white/70">
+                        RECENT VISITOR LOGS
+                      </p>
+                      {clearError && (
+                        <span className="font-mono-tech text-[11px] text-[#FF1E00]">
+                          {clearError}
+                        </span>
+                      )}
+                    </div>
+
+                    {stats.total_views > 0 && (
+                      <button
+                        type="button"
+                        disabled={clearing}
+                        onClick={handleClearVisitors}
+                        className={`cursor-pointer rounded-xl px-3.5 py-1.5 font-mono-tech text-[11px] font-bold transition-all disabled:opacity-50 ${
+                          confirmClear
+                            ? "border border-[#FF1E00] bg-[#FF1E00] text-white shadow-[0_0_16px_rgba(255,30,0,0.45)]"
+                            : "border border-[#FF1E00]/40 bg-[#FF1E00]/10 text-[#FF1E00] hover:bg-[#FF1E00] hover:text-white"
+                        }`}
+                      >
+                        {clearing
+                          ? "Clearing..."
+                          : confirmClear
+                          ? "Click Again to Confirm Clear ✕"
+                          : "Clear Visitors"}
+                      </button>
+                    )}
                   </div>
+
                   <div className="overflow-x-auto">
                     <table className="w-full text-left font-mono-tech text-xs">
                       <thead className="border-b border-white/10 bg-white/[0.02] text-[10px] uppercase text-white/45">
                         <tr>
                           <th className="px-6 py-3">Visitor ID</th>
+                          <th className="px-6 py-3">Email / Gmail</th>
                           <th className="px-6 py-3">Device</th>
                           <th className="px-6 py-3">Browser</th>
                           <th className="px-6 py-3">Path</th>
@@ -219,7 +295,7 @@ export default function AdminDashboard({ brandName = "JAS", onLogout, onViewSite
                       <tbody className="divide-y divide-white/10 text-white/80">
                         {stats.recent_visitors.length === 0 ? (
                           <tr>
-                            <td colSpan="5" className="px-6 py-6 text-center text-white/45">
+                            <td colSpan="6" className="px-6 py-6 text-center text-white/45">
                               No visits logged yet — open the public homepage to record a visit.
                             </td>
                           </tr>
@@ -227,6 +303,18 @@ export default function AdminDashboard({ brandName = "JAS", onLogout, onViewSite
                           stats.recent_visitors.map((v) => (
                             <tr key={v.id} className="hover:bg-white/[0.02]">
                               <td className="px-6 py-3 text-[#F5C451]">{v.visitor_id}</td>
+                              <td className="px-6 py-3">
+                                {v.email ? (
+                                  <a
+                                    href={`mailto:${v.email}`}
+                                    className="text-emerald-400 underline-offset-4 hover:underline"
+                                  >
+                                    {v.email}
+                                  </a>
+                                ) : (
+                                  <span className="text-white/30">Anonymous</span>
+                                )}
+                              </td>
                               <td className="px-6 py-3">{v.device_type}</td>
                               <td className="px-6 py-3">{v.browser}</td>
                               <td className="px-6 py-3">{v.path}</td>

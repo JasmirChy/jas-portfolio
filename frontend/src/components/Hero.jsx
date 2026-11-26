@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import staticProfileImg from "../assets/static-profile.jpg";
 import {
   motion,
   useMotionValue,
@@ -180,6 +181,11 @@ function HoloPortraitReactor({ avatarUrl, fullName, brandName, overdrive, onTogg
           <img
             src={avatarUrl}
             alt={fullName}
+            onError={(e) => {
+              if (e.currentTarget.src !== staticProfileImg) {
+                e.currentTarget.src = staticProfileImg;
+              }
+            }}
             className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-108"
           />
         ) : (
@@ -271,7 +277,7 @@ export default function Hero({ profile, socials = [] }) {
     profile?.hero_headline || "I design and build websites and digital products.";
   const location = profile?.location || "Dhangadhi, Nepal";
   const status = profile?.availability_status || "Open to new projects.";
-  const avatarUrl = profile?.avatar || null;
+  const avatarUrl = profile?.avatar || staticProfileImg;
 
   return (
     <section

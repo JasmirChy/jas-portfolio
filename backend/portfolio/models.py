@@ -199,3 +199,18 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.subject or 'Portfolio Inquiry'}"
+
+class VisitorLog(models.Model):
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    visitor_hash = models.CharField(max_length=64, db_index=True)
+    email = models.EmailField(null=True, blank=True)
+    device_type = models.CharField(max_length=30, default="Desktop")
+    browser = models.CharField(max_length=60, default="Browser")
+    path = models.CharField(max_length=200, default="/")
+    visited_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-visited_at"]
+
+    def __str__(self):
+        return f"{self.email or self.device_type} • {self.path} ({self.visited_at:%Y-%m-%d %H:%M})"

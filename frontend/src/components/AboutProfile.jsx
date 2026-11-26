@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import staticProfileImg from "../assets/static-profile.jpg";
 import {
   motion,
   useScroll,
@@ -69,6 +70,7 @@ function getCellColor(theme, lum, wave, isZoomed = false) {
 
 function AsciiMatrixCanvas({
   imageUrl,
+  staticImageUrl = staticProfileImg,
   brandName = "JAS",
   theme = "cyber",
   pointerRef,
@@ -222,7 +224,6 @@ function AsciiMatrixCanvas({
         }
         ctx.restore();
 
-        // Optical 2.2x ASCII Magnifier Loupe when Cursor/Finger Hovers Over Portrait
         if (active && px >= 0 && py >= 0 && px <= rect.width && py <= rect.height) {
           const lensRadius = Math.min(rect.width, rect.height) * 0.27;
           const zoomFactor = 2.2;
@@ -273,7 +274,6 @@ function AsciiMatrixCanvas({
 
           ctx.restore();
 
-          // Glowing HUD Reticle Ring Around the Zoomed Lens
           ctx.save();
           ctx.beginPath();
           ctx.arc(px, py, lensRadius, 0, Math.PI * 2);
@@ -295,7 +295,10 @@ function AsciiMatrixCanvas({
       animationFrameId = requestAnimationFrame(renderFrame);
     };
 
-    if (imageUrl) {
+    const targetSrc = imageUrl || staticImageUrl;
+    let triedStaticFallback = targetSrc === staticImageUrl;
+
+    if (targetSrc) {
       setStatus("loading");
       img.onload = () => {
         if (isCancelled) return;
@@ -304,9 +307,15 @@ function AsciiMatrixCanvas({
         setStatus("ready");
       };
       img.onerror = () => {
-        if (!isCancelled) setStatus("fallback");
+        if (isCancelled) return;
+        if (!triedStaticFallback && staticImageUrl) {
+          triedStaticFallback = true;
+          img.src = staticImageUrl;
+        } else {
+          setStatus("fallback");
+        }
       };
-      img.src = imageUrl;
+      img.src = targetSrc;
     } else {
       setStatus("fallback");
     }
@@ -317,7 +326,7 @@ function AsciiMatrixCanvas({
       isCancelled = true;
       cancelAnimationFrame(animationFrameId);
     };
-  }, [imageUrl, theme, pointerRef]);
+  }, [imageUrl, staticImageUrl, theme, pointerRef]);
 
   return (
     <div ref={containerRef} className="relative h-full w-full bg-[#06080F]">
@@ -356,7 +365,7 @@ export default function AboutProfile({ profile }) {
     "Full-stack developer crafting bold, interactive web experiences with Python, Django, React, and PostgreSQL.";
   const location = profile?.location || "Dhangadhi, Nepal";
   const status = profile?.availability_status || "Open to new projects.";
-  const avatarUrl = profile?.avatar || null;
+  const avatarUrl = profile?.avatar || staticProfileImg;
 
   // 1. Scroll-driven progress across the Profile section
   const { scrollYProgress } = useScroll({
@@ -759,6 +768,7 @@ export default function AboutProfile({ profile }) {
                   <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[20px] bg-[#06080F] sm:rounded-[22px]">
                     <AsciiMatrixCanvas
                       imageUrl={avatarUrl}
+                      staticImageUrl={staticProfileImg}
                       brandName={brandName}
                       theme={asciiTheme}
                       pointerRef={asciiPointerRef}
